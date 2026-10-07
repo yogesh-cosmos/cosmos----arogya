@@ -1,0 +1,7 @@
+{
+  "name": "cosmos-arogya",
+  "private": true,
+  "version": "1.0.0",
+  "description": "COSMOS Arogya — AI health companion PWA",
+  "engines": { "node": ">=18" }
+}
