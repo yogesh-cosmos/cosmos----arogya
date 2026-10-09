@@ -1,7 +1,11 @@
 'use strict';
 // GET /api/places?lat=&lng=&radius=&category=  -> { elements:[...] } from OpenStreetMap (Overpass).
-// Free, no key. Public Overpass servers are flaky, so 4 mirrors are raced in parallel and the
-// first good answer wins. Each category builds a different targeted query.
+// GET /api/places?diag=1                        -> tests all mirrors and reports exactly what each said.
+// Free, no key. Public Overpass instances are known to reject requests with
+// no descriptive User-Agent (a documented Overpass usage-policy requirement,
+// and a common silent cause of 403s), and some mirrors throttle or block
+// shared/datacenter IP ranges outright — which serverless platforms use.
+// 4 mirrors are tried in parallel; the first good answer wins.
 const { timedFetch, send } = require('../lib/groq');
 
 const MIRRORS = [
@@ -10,6 +14,14 @@ const MIRRORS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.osm.ch/api/interpreter',
 ];
+
+// Overpass's own usage policy asks clients to send a descriptive User-Agent
+// identifying the application; several public mirrors return 403 for
+// requests that don't. Costs nothing to include, fixes a real known cause.
+const HEADERS = {
+  'Content-Type': 'application/x-www-form-urlencoded',
+  'User-Agent': 'CosmosArogya/1.0 (+https://github.com/; health-finder PWA)',
+};
 
 function buildQuery(lat, lng, radius, category) {
   const a = `(around:${radius},${lat},${lng})`;
@@ -27,25 +39,70 @@ function buildQuery(lat, lng, radius, category) {
   return `[out:json][timeout:20];(${c.join(';')};);out center 80;`;
 }
 
-async function tryMirror(url, query) {
-  const r = await timedFetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'data=' + encodeURIComponent(query) }, 9000);
-  if (!r.ok) throw new Error(url + ' HTTP ' + r.status);
-  const d = await r.json();
-  if (!d || !Array.isArray(d.elements)) throw new Error(url + ' bad response');
-  return { data: d, mirror: url };
+async function tryMirror(url, query, timeoutMs) {
+  const start = Date.now();
+  try {
+    const r = await timedFetch(url, { method: 'POST', headers: HEADERS, body: 'data=' + encodeURIComponent(query) }, timeoutMs || 9000);
+    const ms = Date.now() - start;
+    const raw = await r.text();
+    if (!r.ok) { const e = new Error('HTTP ' + r.status + ': ' + raw.slice(0, 160)); e.ms = ms; e.status = r.status; throw e; }
+    let data;
+    try { data = JSON.parse(raw); } catch (_) { const e = new Error('non-JSON response'); e.ms = ms; throw e; }
+    if (!data || !Array.isArray(data.elements)) { const e = new Error('no elements field in response'); e.ms = ms; throw e; }
+    return { data, mirror: url, ms };
+  } catch (e) {
+    e.ms = e.ms || (Date.now() - start);
+    e.mirror = url;
+    if (e.name === 'AbortError' || /timeout/i.test(e.message)) e.message = `timed out after ${e.ms}ms`;
+    throw e;
+  }
+}
+
+async function diagnose() {
+  const testQuery = `[out:json][timeout:15];(node["amenity"="hospital"](around:3000,9.9252,78.1198););out center 3;`;
+  const results = await Promise.all(MIRRORS.map(async m => {
+    try { const r = await tryMirror(m, testQuery, 9000); return { mirror: m, ok: true, ms: r.ms, count: r.data.elements.length }; }
+    catch (e) { return { mirror: m, ok: false, ms: e.ms, error: e.message }; }
+  }));
+  const anyOk = results.some(r => r.ok);
+  return {
+    time: new Date().toISOString(),
+    results,
+    verdict: anyOk
+      ? 'At least one Overpass mirror is reachable from this server — the hospital finder should work. If it still shows nothing in the app, the issue is likely the browser not getting/sending your location, not this API.'
+      : 'ALL 4 Overpass mirrors failed from this server right now. This usually means either Overpass is rate-limiting/blocking this server\'s shared IP address (common for free hosting platforms), or there is a network egress restriction on this deployment. See the per-mirror errors above for the exact reason — a 403 means blocked/rejected, a timeout means unreachable, a 429 means rate-limited.',
+  };
 }
 
 module.exports = async function handler(req, res) {
   const u = new URL(req.url, 'http://localhost');
+  if (u.searchParams.get('diag') === '1') {
+    const report = await diagnose();
+    return send(res, 200, report);
+  }
+
   const lat = parseFloat(u.searchParams.get('lat')), lng = parseFloat(u.searchParams.get('lng'));
   const radius = Math.min(15000, parseInt(u.searchParams.get('radius') || '6000', 10) || 6000);
   const category = u.searchParams.get('category') || 'all';
   if (!isFinite(lat) || !isFinite(lng)) return send(res, 400, { error: 'lat and lng query params required' });
+
   const query = buildQuery(lat, lng, radius, category);
-  try {
-    const win = await Promise.any(MIRRORS.map(m => tryMirror(m, query)));
+  const attempts = MIRRORS.map(m => tryMirror(m, query).then(r => ({ ok: true, ...r }), e => ({ ok: false, mirror: m, error: e.message })));
+  const results = await Promise.all(attempts);
+  const win = results.find(r => r.ok);
+
+  if (win) {
     return send(res, 200, { elements: win.data.elements, source: win.mirror, category }, { 'Cache-Control': 'public, max-age=120' });
-  } catch (agg) {
-    return send(res, 503, { error: 'Map data servers are busy right now. Please retry in a moment.', details: (agg.errors || []).map(e => e.message) });
   }
+
+  const details = results.map(r => `${r.mirror}: ${r.error}`);
+  const allForbidden = results.every(r => /HTTP 403/.test(r.error));
+  const allTimedOut = results.every(r => /timed out/.test(r.error));
+  const hint = allForbidden
+    ? 'All map servers rejected the request (403) — likely this server\'s IP is being blocked by these free map providers. Visit /api/places?diag=1 for full details.'
+    : allTimedOut
+    ? 'All map servers timed out — they may be temporarily overloaded. Try again shortly, or visit /api/places?diag=1 for details.'
+    : 'Map data is temporarily unavailable. Visit /api/places?diag=1 for the exact per-server reason.';
+
+  return send(res, 503, { error: 'Could not load nearby places right now.', hint, details });
 };
