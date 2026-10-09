@@ -887,7 +887,7 @@ svg{display:block;}
    ════════════════════════════════════════════════ */
 
 window.FIREBASE_CONFIG = {
-apiKey: "AIzaSyCD5g5tdw2dhSg-Rtz-TVp1zwlZ4LB7osE",
+ apiKey: "AIzaSyCD5g5tdw2dhSg-Rtz-TVp1zwlZ4LB7osE",
   authDomain: "cosmos-arogya.firebaseapp.com",
   projectId: "cosmos-arogya",
   storageBucket: "cosmos-arogya.firebasestorage.app",
@@ -1426,7 +1426,7 @@ async function loadCategory(category){
   try {
     const resp = await fetch(`/api/places?lat=${lat}&lng=${lng}&radius=6000&category=${encodeURIComponent(category)}`);
     const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error || 'Could not load places');
+    if (!resp.ok) { if (data.details) console.warn('Places proxy failure details:', data.details); throw new Error(data.hint || data.error || 'Could not load places'); }
     hp.innerHTML = '';
     const els = data.elements || [];
     if (!els.length) {
@@ -1460,8 +1460,8 @@ async function loadCategory(category){
     }
   } catch(e) {
     console.warn('Places load failed:', e);
-    toast('Could not load nearby places — tap retry');
-    hp.innerHTML = `<div class="hp-empty"><div class="hp-empty-ico">📡</div>Could not load nearby places right now.<br><br><button class="s-btn pri" style="display:inline-block;padding:10px 20px;margin-top:6px;" onclick="retryLoadPlaces()">Retry</button></div>`;
+    toast(e.message || 'Could not load nearby places — tap retry');
+    hp.innerHTML = `<div class="hp-empty"><div class="hp-empty-ico">📡</div>${esc(e.message || 'Could not load nearby places right now.')}<br><br><button class="s-btn pri" style="display:inline-block;padding:10px 20px;margin-top:6px;" onclick="retryLoadPlaces()">Retry</button><br><a href="/api/places?diag=1" target="_blank" style="font-size:11px;color:var(--t3);display:inline-block;margin-top:10px;">See full diagnostic →</a></div>`;
   }
 }
 let lastKnownLatLng = null;
