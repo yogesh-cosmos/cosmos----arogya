@@ -585,6 +585,37 @@ svg{display:block;}
 .leaflet-control-attribution{font-size:8px!important;background:rgba(255,255,255,.7)!important;}
 
 .hidden{display:none!important;}
+
+/* ══ CHAT COMPOSER — fixed, floating, premium (overrides older rules) ══ */
+/* transform on the tab would trap position:fixed, so neutralise it on chat */
+#tab-chat.on{animation:none;transform:none;}
+#tab-chat .chat-msgs{padding-bottom:170px;}
+.chat-inp-bar{position:fixed;left:0;right:0;bottom:calc(70px + var(--sb));z-index:90;
+  padding:14px 14px 12px;background:linear-gradient(180deg,rgba(242,242,247,0) 0%,rgba(242,242,247,.92) 45%,var(--bg) 100%);
+  pointer-events:none;}
+.chat-inp-bar .composer{pointer-events:auto;max-width:760px;margin:0 auto;display:flex;align-items:flex-end;gap:8px;
+  padding:8px 8px 8px 18px;border-radius:28px;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:.5px solid rgba(60,60,67,.14);
+  box-shadow:0 12px 32px rgba(0,0,0,.10),0 2px 6px rgba(0,0,0,.05);
+  transition:box-shadow .25s var(--ease),border-color .25s var(--ease),transform .25s var(--ease);}
+.chat-inp-bar .composer:focus-within{border-color:rgba(10,132,255,.45);
+  box-shadow:0 16px 40px rgba(10,132,255,.16),0 2px 6px rgba(0,0,0,.05);}
+.chat-inp-bar textarea{flex:1;min-height:36px;max-height:140px;padding:9px 0;font-size:15px;line-height:1.45;
+  color:var(--t1);background:none;border:none;outline:none;resize:none;}
+.chat-inp-bar textarea::placeholder{color:var(--t3);}
+.composer-btn{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:transform .15s var(--ease-spring),background .2s,box-shadow .2s;}
+.composer-btn:active{transform:scale(.86);}
+.composer-mic{background:var(--bg);}
+.composer-mic svg{stroke:var(--t2);}
+.composer-mic.on{background:var(--blue-l);}
+.composer-mic.on svg{stroke:var(--blue);}
+.composer-send{background:var(--bg2);}
+.composer-send svg{stroke:var(--t3);width:16px;height:16px;}
+.composer-send.ready{background:linear-gradient(135deg,var(--blue) 0%,var(--teal) 100%);box-shadow:0 6px 16px rgba(10,132,255,.35);}
+.composer-send.ready svg{stroke:#fff;}
 </style>
 </head>
 <body>
@@ -659,30 +690,30 @@ svg{display:block;}
         <div class="stat-cell"><div class="stat-v" id="st-hosp" style="color:var(--teal)">—</div><div class="stat-l">Hospitals</div></div>
         <div class="stat-cell"><div class="stat-v" id="st-chats" style="color:var(--violet)">—</div><div class="stat-l">Chats</div></div>
       </div>
-      <div class="sec-hdr"><div class="sec-title">Features</div></div>
+      <div class="sec-hdr"><div class="sec-title" data-i18n="features">Features</div></div>
       <div class="feat-grid">
         <div class="feat-card" onclick="goTab('scan')">
           <div class="feat-ico" style="background:var(--blue-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div>
-          <div class="feat-name">MediScanner</div><div class="feat-desc">Scan medicines, prescriptions & reports</div>
+          <div class="feat-name" data-i18n="feat_scan">MediScanner</div><div class="feat-desc" data-i18n="feat_scan_d">Scan medicines, prescriptions & reports</div>
         </div>
         <div class="feat-card" onclick="goTab('hospitals')">
           <div class="feat-ico" style="background:var(--teal-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
-          <div class="feat-name">Hospitals</div><div class="feat-desc">Find nearby specialists & clinics</div>
+          <div class="feat-name" data-i18n="feat_hosp">Hospitals</div><div class="feat-desc" data-i18n="feat_hosp_d">Find nearby specialists & clinics</div>
         </div>
         <div class="feat-card" onclick="goTab('chat')">
           <div class="feat-ico" style="background:var(--violet-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-          <div class="feat-name">AI Chat</div><div class="feat-desc">Health questions in your language</div>
+          <div class="feat-name" data-i18n="feat_chat">AI Chat</div><div class="feat-desc" data-i18n="feat_chat_d">Health questions in your language</div>
         </div>
         <div class="feat-card" onclick="goTab('scan');setTimeout(()=>document.getElementById('symp-section').scrollIntoView({behavior:'smooth'}),350)">
           <div class="feat-ico" style="background:var(--coral-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
-          <div class="feat-name">Symptoms</div><div class="feat-desc">Describe & get specialist advice</div>
+          <div class="feat-name" data-i18n="feat_symp">Symptoms</div><div class="feat-desc" data-i18n="feat_symp_d">Describe & get specialist advice</div>
         </div>
       </div>
       <div class="tip-card">
         <div class="tip-icon-wrap">💡</div>
         <div><div class="tip-label">HEALTH TIP</div><div class="tip-text" id="home-tip">Drink at least 8 glasses of water daily to stay hydrated.</div></div>
       </div>
-      <div class="sec-hdr"><div class="sec-title">Recent Activity</div></div>
+      <div class="sec-hdr"><div class="sec-title" data-i18n="recent">Recent Activity</div></div>
       <div class="act-list" id="home-activity"><div style="padding:24px;text-align:center;color:var(--t3);font-size:13.5px;">Loading your activity…</div></div>
     </div>
 
@@ -698,9 +729,9 @@ svg{display:block;}
         <div class="cam-proc hidden" id="cam-proc"><div class="proc-ring"></div><div class="proc-txt">Analysing with AI…</div></div>
       </div>
       <div class="scan-actions">
-        <button class="s-btn pri" onclick="doCapture()">📷 Scan Now</button>
-        <button class="s-btn" onclick="document.getElementById('file-inp').click()">📁 Upload</button>
-        <button class="s-btn" id="voice-btn" onclick="doVoiceScan()">🎤 Voice</button>
+        <button class="s-btn pri" onclick="doCapture()" data-i18n="scanNow">📷 Scan Now</button>
+        <button class="s-btn" onclick="document.getElementById('file-inp').click()" data-i18n="upload">📁 Upload</button>
+        <button class="s-btn" id="voice-btn" onclick="doVoiceScan()" data-i18n="voice">🎤 Voice</button>
       </div>
       <input type="file" id="file-inp" accept="image/*" style="display:none" onchange="doFileUpload(event)"/>
       <div id="scan-result" class="hidden">
@@ -717,22 +748,22 @@ svg{display:block;}
         <div id="brand-card" class="brand-card hidden"></div>
       </div>
       <div id="scan-howto" class="howto-card">
-        <div class="howto-title">How to use MediScanner</div>
+        <div class="howto-title" data-i18n="howto">How to use MediScanner</div>
         <div class="howto-step"><div class="howto-num">1</div><div class="howto-txt">Tap <strong>Scan Now</strong> — camera opens. Point it at any medicine box, pill packet, prescription or lab report.</div></div>
         <div class="howto-step"><div class="howto-num">2</div><div class="howto-txt">Tap <strong>Upload</strong> to pick a photo from your gallery instead.</div></div>
         <div class="howto-step"><div class="howto-num">3</div><div class="howto-txt">Tap <strong>Voice</strong> — speak the medicine name and AI will explain it.</div></div>
       </div>
       <div id="symp-section" class="symp-section" style="margin-top:6px;">
-        <div class="sec-hdr" style="padding-left:0;padding-right:0;"><div class="sec-title">Symptom Checker</div></div>
+        <div class="sec-hdr" style="padding-left:0;padding-right:0;"><div class="sec-title" data-i18n="symptomChecker">Symptom Checker</div></div>
         <div class="symp-card">
           <div class="symp-card-header">
             <div class="symp-card-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
-            <div><div class="symp-card-title">What are you feeling?</div><div class="symp-card-sub">AI suggests the right specialist for you</div></div>
+            <div><div class="symp-card-title" data-i18n="symptomsQ">What are you feeling?</div><div class="symp-card-sub" data-i18n="symptomsSub">AI suggests the right specialist for you</div></div>
           </div>
           <div class="symp-body">
             <div class="symp-inp-row">
               <input class="symp-inp" id="symp-inp" placeholder="e.g. headache, fever, chest pain…" onkeydown="if(event.key==='Enter')runSymp()"/>
-              <button class="symp-go" onclick="runSymp()">Check</button>
+              <button class="symp-go" onclick="runSymp()" data-i18n="check">Check</button>
             </div>
             <button class="symp-voice-btn" onclick="sympVoice()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>Speak your symptoms</button>
             <div class="symp-chips">
@@ -750,17 +781,17 @@ svg{display:block;}
         </div>
       </div>
       <div class="hist-sec">
-        <div class="sec-hdr" style="padding-left:0;padding-right:0;"><div class="sec-title">Scan History</div></div>
+        <div class="sec-hdr" style="padding-left:0;padding-right:0;"><div class="sec-title" data-i18n="scanHistory">Scan History</div></div>
         <div class="act-list" id="scan-hist" style="padding:0;"><div style="padding:24px 0;text-align:center;color:var(--t3);font-size:13.5px;">Your scan history will appear here.</div></div>
       </div>
     </div>
 
     <div id="tab-hospitals" class="tab">
       <div class="hp-header">
-        <div class="hp-title">Nearby Hospitals</div>
+        <div class="hp-title" data-i18n="nearbyTitle">Nearby Hospitals</div>
         <div class="hp-search-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input id="hp-inp" placeholder="Search hospitals, pharmacies…" oninput="hpFilter(this.value)"/>
+          <input id="hp-inp" placeholder="Search hospitals, pharmacies…" data-i18n-ph="ph_search" oninput="hpFilter(this.value)"/>
           <div class="hp-search-clear" id="hp-clear" onclick="hpClearSearch()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
         </div>
       </div>
@@ -769,13 +800,13 @@ svg{display:block;}
         <div id="map-loader"><div class="map-loader-ring"></div><div style="font-size:12.5px;color:var(--t3);font-weight:600">Getting your location…</div></div>
       </div>
       <div class="chips-scroll" id="hp-chips">
-        <div class="f-chip on" onclick="hpChip(this,'all')">All</div>
-        <div class="f-chip" onclick="hpChip(this,'hospital')">🏥 Hospitals</div>
-        <div class="f-chip" onclick="hpChip(this,'pharmacy')">💊 Pharmacy</div>
-        <div class="f-chip" onclick="hpChip(this,'dental')">🦷 Dental</div>
-        <div class="f-chip" onclick="hpChip(this,'ortho')">🦴 Ortho</div>
-        <div class="f-chip" onclick="hpChip(this,'eye')">👁 Eye Care</div>
-        <div class="f-chip" onclick="hpChip(this,'clinic')">🩺 Clinics</div>
+        <div class="f-chip on" onclick="hpChip(this,'all')" data-i18n="chipAll">All</div>
+        <div class="f-chip" onclick="hpChip(this,'hospital')" data-i18n="chipHosp">🏥 Hospitals</div>
+        <div class="f-chip" onclick="hpChip(this,'pharmacy')" data-i18n="chipPharm">💊 Pharmacy</div>
+        <div class="f-chip" onclick="hpChip(this,'dental')" data-i18n="chipDental">🦷 Dental</div>
+        <div class="f-chip" onclick="hpChip(this,'ortho')" data-i18n="chipOrtho">🦴 Ortho</div>
+        <div class="f-chip" onclick="hpChip(this,'eye')" data-i18n="chipEye">👁 Eye Care</div>
+        <div class="f-chip" onclick="hpChip(this,'clinic')" data-i18n="chipClinic">🩺 Clinics</div>
       </div>
       <div class="hp-list" id="hp-list"><div class="hp-empty"><div class="hp-empty-ico">🏥</div>Allow location access to find nearby hospitals and pharmacies.</div></div>
     </div>
@@ -794,7 +825,7 @@ svg{display:block;}
       </div>
       <div class="chat-inp-bar">
         <div class="composer">
-          <textarea id="chat-inp" placeholder="Message Arogya AI…" rows="1" oninput="autoGrow(this);toggleSend()" onkeydown="handleComposerKey(event)"></textarea>
+          <textarea id="chat-inp" placeholder="Message Arogya AI…" data-i18n-ph="ph_chat" rows="1" oninput="autoGrow(this);toggleSend()" onkeydown="handleComposerKey(event)"></textarea>
           <button class="composer-btn composer-mic" id="chat-mic" onclick="chatVoice()" title="Voice input"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></button>
           <button class="composer-btn composer-send" id="chat-send-btn" onclick="sendMsg()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
         </div>
@@ -803,7 +834,7 @@ svg{display:block;}
 
     <div id="tab-profile" class="tab">
       <div class="pr-header">
-        <div class="pr-header-top"><div class="pr-header-title">My Profile</div>
+        <div class="pr-header-top"><div class="pr-header-title" data-i18n="myProfile">My Profile</div>
           <button class="pr-settings-btn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
         </div>
         <div class="pr-profile-row">
@@ -818,16 +849,16 @@ svg{display:block;}
         <div class="pr-stat-card"><div class="pr-stat-v" id="pr-lang" style="color:var(--amber);font-size:18px">English</div><div class="pr-stat-l">Language</div></div>
       </div>
       <div class="pr-section">
-        <div class="pr-sec-title">Account Settings</div>
+        <div class="pr-sec-title" data-i18n="accountSettings">Account Settings</div>
         <div class="settings-card">
           <div class="set-row" onclick="showLangScreen()">
             <div class="set-row-ico" style="background:var(--blue-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div>
-            <span class="set-row-lbl">Language</span><span class="set-row-val" id="set-lang-val">English</span>
+            <span class="set-row-lbl" data-i18n="language">Language</span><span class="set-row-val" id="set-lang-val">English</span>
             <svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
           </div>
-          <div class="set-row"><div class="set-row-ico" style="background:var(--amber-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div><span class="set-row-lbl">Notifications</span><div class="set-toggle"><div class="set-toggle-dot"></div></div></div>
-          <div class="set-row"><div class="set-row-ico" style="background:var(--violet-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><span class="set-row-lbl">Privacy & Data</span><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
-          <div class="set-row danger" onclick="doSignOut()"><div class="set-row-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div><span class="set-row-lbl">Sign Out</span></div>
+          <div class="set-row"><div class="set-row-ico" style="background:var(--amber-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div><span class="set-row-lbl" data-i18n="notifications">Notifications</span><div class="set-toggle"><div class="set-toggle-dot"></div></div></div>
+          <div class="set-row"><div class="set-row-ico" style="background:var(--violet-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><span class="set-row-lbl" data-i18n="privacy">Privacy & Data</span><svg class="set-chev" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+          <div class="set-row danger" onclick="doSignOut()"><div class="set-row-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div><span class="set-row-lbl" data-i18n="signOut">Sign Out</span></div>
         </div>
       </div>
       <div class="pr-section">
@@ -843,11 +874,11 @@ svg{display:block;}
   </div>
 
   <nav class="nav">
-    <button class="nav-btn on" id="nav-home" onclick="goTab('home')"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span><div class="nav-dot"></div></button>
-    <button class="nav-btn" id="nav-scan" onclick="goTab('scan')"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg><span>Scan</span><div class="nav-dot"></div></button>
-    <button class="nav-btn" id="nav-hospitals" onclick="goTab('hospitals')"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg><span>Hospitals</span><div class="nav-dot"></div></button>
-    <button class="nav-btn" id="nav-chat" onclick="goTab('chat')"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>Chat</span><div class="nav-dot"></div></button>
-    <button class="nav-btn" id="nav-profile" onclick="goTab('profile')"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span><div class="nav-dot"></div></button>
+    <button class="nav-btn on" id="nav-home" onclick="goTab('home')"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span data-i18n="home">Home</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="nav-scan" onclick="goTab('scan')"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg><span data-i18n="scan">Scan</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="nav-hospitals" onclick="goTab('hospitals')"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg><span data-i18n="hospitals">Hospitals</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="nav-chat" onclick="goTab('chat')"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span data-i18n="chat">Chat</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="nav-profile" onclick="goTab('profile')"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span data-i18n="profile">Profile</span><div class="nav-dot"></div></button>
   </nav>
 </div>
 
@@ -887,7 +918,7 @@ svg{display:block;}
    ════════════════════════════════════════════════ */
 
 window.FIREBASE_CONFIG = {
- apiKey: "AIzaSyCD5g5tdw2dhSg-Rtz-TVp1zwlZ4LB7osE",
+  apiKey: "AIzaSyCD5g5tdw2dhSg-Rtz-TVp1zwlZ4LB7osE",
   authDomain: "cosmos-arogya.firebaseapp.com",
   projectId: "cosmos-arogya",
   storageBucket: "cosmos-arogya.firebasestorage.app",
@@ -975,6 +1006,7 @@ window.addEventListener('load', () => {
     });
   }
   LANG = localStorage.getItem('ca_lang') || 'en';
+  applyLang();
   $id('home-tip').textContent = HEALTH_TIPS[Math.floor(Math.random()*HEALTH_TIPS.length)];
   setGreeting();
   const savedUser = localStorage.getItem('ca_user');
@@ -989,11 +1021,28 @@ window.addEventListener('load', () => {
     else show(localStorage.getItem('ca_visited') ? 'scr-login' : 'scr-lang');
   }, 2200);
 });
-function setGreeting(){ const h=new Date().getHours(); setTxt('hm-greet', h<12?'Good morning 🌿':h<17?'Good afternoon ☀️':'Good evening 🌙'); }
+function setGreeting(){ const h=new Date().getHours(); setTxt('hm-greet', h<12?tx('greetMorning'):h<17?tx('greetAfternoon'):tx('greetEvening')); }
+
+
+// ── I18N: every visible UI string, in the 5 supported languages ──
+const I18N = {
+en:{home:'Home',scan:'Scan',hospitals:'Hospitals',chat:'Chat',profile:'Profile',features:'Features',recent:'Recent Activity',symptomChecker:'Symptom Checker',scanHistory:'Scan History',feat_scan:'MediScanner',feat_scan_d:'Scan medicines, prescriptions & reports',feat_hosp:'Hospitals',feat_hosp_d:'Find nearby specialists & clinics',feat_chat:'AI Chat',feat_chat_d:'Health questions in your language',feat_symp:'Symptoms',feat_symp_d:'Describe & get specialist advice',scanNow:'📷 Scan Now',upload:'📁 Upload',voice:'🎤 Voice',howto:'How to use MediScanner',nearbyTitle:'Nearby Hospitals',ph_search:'Search hospitals, pharmacies…',ph_chat:'Message Arogya AI…',chipAll:'All',chipHosp:'🏥 Hospitals',chipPharm:'💊 Pharmacy',chipDental:'🦷 Dental',chipOrtho:'🦴 Ortho',chipEye:'👁 Eye Care',chipClinic:'🩺 Clinics',myProfile:'My Profile',accountSettings:'Account Settings',language:'Language',notifications:'Notifications',privacy:'Privacy & Data',signOut:'Sign Out',symptomsQ:'What are you feeling?',symptomsSub:'AI suggests the right specialist for you',check:'Check',greetMorning:'Good morning 🌿',greetAfternoon:'Good afternoon ☀️',greetEvening:'Good evening 🌙'},
+ta:{home:'முகப்பு',scan:'ஸ்கேன்',hospitals:'மருத்துவமனைகள்',chat:'அரட்டை',profile:'சுயவிவரம்',features:'அம்சங்கள்',recent:'சமீபத்திய செயல்பாடு',symptomChecker:'அறிகுறி சரிபார்ப்பு',scanHistory:'ஸ்கேன் வரலாறு',feat_scan:'மருந்து ஸ்கேனர்',feat_scan_d:'மருந்துகள், மருந்துச் சீட்டுகள் & அறிக்கைகளை ஸ்கேன் செய்க',feat_hosp:'மருத்துவமனைகள்',feat_hosp_d:'அருகிலுள்ள நிபுணர்கள் & கிளினிக்குகள்',feat_chat:'AI அரட்டை',feat_chat_d:'உங்கள் மொழியில் உடல்நலக் கேள்விகள்',feat_symp:'அறிகுறிகள்',feat_symp_d:'விவரிக்கவும், நிபுணர் ஆலோசனை பெறவும்',scanNow:'📷 ஸ்கேன் செய்',upload:'📁 பதிவேற்று',voice:'🎤 குரல்',howto:'மருந்து ஸ்கேனரை எப்படி பயன்படுத்துவது',nearbyTitle:'அருகிலுள்ள மருத்துவமனைகள்',ph_search:'மருத்துவமனைகள், மருந்தகங்களைத் தேடுக…',ph_chat:'Arogya AI-க்கு செய்தி அனுப்புக…',chipAll:'அனைத்தும்',chipHosp:'🏥 மருத்துவமனைகள்',chipPharm:'💊 மருந்தகம்',chipDental:'🦷 பல் மருத்துவம்',chipOrtho:'🦴 எலும்பு',chipEye:'👁 கண் பராமரிப்பு',chipClinic:'🩺 கிளினிக்குகள்',myProfile:'என் சுயவிவரம்',accountSettings:'கணக்கு அமைப்புகள்',language:'மொழி',notifications:'அறிவிப்புகள்',privacy:'தனியுரிமை & தரவு',signOut:'வெளியேறு',symptomsQ:'நீங்கள் எப்படி உணர்கிறீர்கள்?',symptomsSub:'உங்களுக்கு சரியான நிபுணரை AI பரிந்துரைக்கும்',check:'சரிபார்',greetMorning:'காலை வணக்கம் 🌿',greetAfternoon:'மதிய வணக்கம் ☀️',greetEvening:'மாலை வணக்கம் 🌙'},
+hi:{home:'होम',scan:'स्कैन',hospitals:'अस्पताल',chat:'चैट',profile:'प्रोफ़ाइल',features:'सुविधाएँ',recent:'हाल की गतिविधि',symptomChecker:'लक्षण जाँचें',scanHistory:'स्कैन इतिहास',feat_scan:'दवा स्कैनर',feat_scan_d:'दवाइयाँ, पर्चे और रिपोर्ट स्कैन करें',feat_hosp:'अस्पताल',feat_hosp_d:'पास के विशेषज्ञ और क्लिनिक खोजें',feat_chat:'AI चैट',feat_chat_d:'अपनी भाषा में स्वास्थ्य प्रश्न',feat_symp:'लक्षण',feat_symp_d:'लिखें और विशेषज्ञ सलाह पाएँ',scanNow:'📷 स्कैन करें',upload:'📁 अपलोड',voice:'🎤 आवाज़',howto:'दवा स्कैनर कैसे उपयोग करें',nearbyTitle:'पास के अस्पताल',ph_search:'अस्पताल, फ़ार्मेसी खोजें…',ph_chat:'Arogya AI को संदेश लिखें…',chipAll:'सभी',chipHosp:'🏥 अस्पताल',chipPharm:'💊 फ़ार्मेसी',chipDental:'🦷 दंत',chipOrtho:'🦴 हड्डी',chipEye:'👁 आँख',chipClinic:'🩺 क्लिनिक',myProfile:'मेरी प्रोफ़ाइल',accountSettings:'खाता सेटिंग्स',language:'भाषा',notifications:'सूचनाएँ',privacy:'गोपनीयता और डेटा',signOut:'साइन आउट',symptomsQ:'आप कैसा महसूस कर रहे हैं?',symptomsSub:'AI आपके लिए सही विशेषज्ञ सुझाता है',check:'जाँचें',greetMorning:'सुप्रभात 🌿',greetAfternoon:'नमस्ते ☀️',greetEvening:'शुभ संध्या 🌙'},
+te:{home:'హోమ్',scan:'స్కాన్',hospitals:'ఆసుపత్రులు',chat:'చాట్',profile:'ప్రొఫైల్',features:'ఫీచర్లు',recent:'ఇటీవలి కార్యకలాపాలు',symptomChecker:'లక్షణ తనిఖీ',scanHistory:'స్కాన్ చరిత్ర',feat_scan:'మందుల స్కానర్',feat_scan_d:'మందులు, ప్రిస్క్రిప్షన్లు & రిపోర్టులు స్కాన్ చేయండి',feat_hosp:'ఆసుపత్రులు',feat_hosp_d:'సమీప నిపుణులు & క్లినిక్‌లను కనుగొనండి',feat_chat:'AI చాట్',feat_chat_d:'మీ భాషలో ఆరోగ్య ప్రశ్నలు',feat_symp:'లక్షణాలు',feat_symp_d:'వివరించండి, నిపుణుల సలహా పొందండి',scanNow:'📷 స్కాన్ చేయి',upload:'📁 అప్‌లోడ్',voice:'🎤 వాయిస్',howto:'మందుల స్కానర్‌ను ఎలా ఉపయోగించాలి',nearbyTitle:'సమీప ఆసుపత్రులు',ph_search:'ఆసుపత్రులు, ఫార్మసీలు వెతకండి…',ph_chat:'Arogya AI కి సందేశం పంపండి…',chipAll:'అన్నీ',chipHosp:'🏥 ఆసుపత్రులు',chipPharm:'💊 ఫార్మసీ',chipDental:'🦷 దంత',chipOrtho:'🦴 ఎముకలు',chipEye:'👁 కంటి సంరక్షణ',chipClinic:'🩺 క్లినిక్‌లు',myProfile:'నా ప్రొఫైల్',accountSettings:'ఖాతా సెట్టింగ్‌లు',language:'భాష',notifications:'నోటిఫికేషన్‌లు',privacy:'గోప్యత & డేటా',signOut:'సైన్ అవుట్',symptomsQ:'మీకు ఎలా అనిపిస్తోంది?',symptomsSub:'మీకు సరైన నిపుణుడిని AI సూచిస్తుంది',check:'తనిఖీ',greetMorning:'శుభోదయం 🌿',greetAfternoon:'శుభ మధ్యాహ్నం ☀️',greetEvening:'శుభ సాయంత్రం 🌙'},
+ml:{home:'ഹോം',scan:'സ്കാൻ',hospitals:'ആശുപത്രികൾ',chat:'ചാറ്റ്',profile:'പ്രൊഫൈൽ',features:'സവിശേഷതകൾ',recent:'സമീപകാല പ്രവർത്തനം',symptomChecker:'ലക്ഷണ പരിശോധന',scanHistory:'സ്കാൻ ചരിത്രം',feat_scan:'മരുന്ന് സ്കാനർ',feat_scan_d:'മരുന്നുകളും കുറിപ്പടികളും റിപ്പോർട്ടുകളും സ്കാൻ ചെയ്യുക',feat_hosp:'ആശുപത്രികൾ',feat_hosp_d:'സമീപത്തുള്ള വിദഗ്ധരെയും ക്ലിനിക്കുകളെയും കണ്ടെത്തുക',feat_chat:'AI ചാറ്റ്',feat_chat_d:'നിങ്ങളുടെ ഭാഷയിൽ ആരോഗ്യ ചോദ്യങ്ങൾ',feat_symp:'ലക്ഷണങ്ങൾ',feat_symp_d:'വിവരിക്കുക, വിദഗ്ധ ഉപദേശം നേടുക',scanNow:'📷 സ്കാൻ ചെയ്യുക',upload:'📁 അപ്‌ലോഡ്',voice:'🎤 ശബ്ദം',howto:'മരുന്ന് സ്കാനർ എങ്ങനെ ഉപയോഗിക്കാം',nearbyTitle:'സമീപത്തുള്ള ആശുപത്രികൾ',ph_search:'ആശുപത്രികൾ, ഫാർമസികൾ തിരയുക…',ph_chat:'Arogya AI-ക്ക് സന്ദേശം അയയ്ക്കുക…',chipAll:'എല്ലാം',chipHosp:'🏥 ആശുപത്രികൾ',chipPharm:'💊 ഫാർമസി',chipDental:'🦷 ദന്ത',chipOrtho:'🦴 അസ്ഥി',chipEye:'👁 നേത്ര പരിചരണം',chipClinic:'🩺 ക്ലിനിക്കുകൾ',myProfile:'എന്റെ പ്രൊഫൈൽ',accountSettings:'അക്കൗണ്ട് ക്രമീകരണങ്ങൾ',language:'ഭാഷ',notifications:'അറിയിപ്പുകൾ',privacy:'സ്വകാര്യത & ഡാറ്റ',signOut:'സൈൻ ഔട്ട്',symptomsQ:'നിങ്ങൾക്ക് എന്ത് തോന്നുന്നു?',symptomsSub:'നിങ്ങൾക്ക് അനുയോജ്യമായ വിദഗ്ധനെ AI നിർദ്ദേശിക്കും',check:'പരിശോധിക്കുക',greetMorning:'സുപ്രഭാതം 🌿',greetAfternoon:'ശുഭ ഉച്ച ☀️',greetEvening:'ശുഭ സന്ധ്യ 🌙'}
+};
+function tx(k){ return (I18N[LANG] && I18N[LANG][k]) || I18N.en[k] || ''; }
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.querySelectorAll('[data-i18n]').forEach(el => { const v = tx(el.dataset.i18n); if (v) el.textContent = v; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { const v = tx(el.dataset.i18nPh); if (v) el.placeholder = v; });
+  setGreeting();
+}
 
 // ── LANGUAGE ──
 function selLang(btn){ document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); LANG=btn.dataset.lang; }
-function langContinue(){ localStorage.setItem('ca_lang',LANG); localStorage.setItem('ca_visited','1'); updLangUI(); show('scr-login'); }
+function langContinue(){ localStorage.setItem('ca_lang',LANG); localStorage.setItem('ca_visited','1'); updLangUI(); applyLang(); show('scr-login'); }
 function showLangScreen(){ show('scr-lang'); }
 function updLangUI(){ const n=LANG_NAMES[LANG]||'English'; setTxt('pr-lang',n); setTxt('set-lang-val',n); }
 
@@ -1032,7 +1081,7 @@ function afterLogin(u){
     if (u.photoURL) el.innerHTML = `<img src="${u.photoURL}" onerror="this.parentElement.textContent='${init}'"/>`;
     else el.textContent = init;
   });
-  updLangUI(); show('scr-app'); goTab('home'); loadStats(); loadActivity();
+  updLangUI(); applyLang(); show('scr-app'); goTab('home'); loadStats(); loadActivity();
 }
 
 // ── STATS / ACTIVITY ──
